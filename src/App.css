@@ -1,0 +1,28 @@
+.App {
+  text-align: center;
+}
+
+.center{
+  display: flex;
+  justify-content: center;
+}
+
+.particles{
+  position: fixed;
+  left: 0;
+  bottom: 0;
+  top: 0;
+  z-index: 1;
+  right: 0;
+  background-attachment: fixed;
+}
+.loading{
+  margin-left: auto;
+    margin-right: auto;
+    margin-top: 12vh;
+}
+#sa{
+position: absolute;  
+  color: white;
+  margin-top: 55vh;
+}
