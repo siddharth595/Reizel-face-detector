@@ -4,10 +4,11 @@ import Snowfall from 'react-snowfall';
 import TypeAnimation from './components/TypeAnimation/TypeAnimation';
 import Clarifai from 'clarifai';
 import Logo from './components/Logo/Logo';
-import Face from './components/Face/Face';
+import Faces from './components/Faces/Faces';
 import In from './components/Input/Input';
 import ReactLoading from 'react-loading';
 import StickyFooter from 'react-sticky-footer';
+import ErrorMessage from './components/ErrorMessage/ErrorMessage';
 
 
 const app = new Clarifai.App({
@@ -21,38 +22,55 @@ class App extends Component {
     this.state = {
       input: '',
       imageUrl: '',
-      box: {},
+      box: [],
+      errorMessage:''
     }
   }
 
-  claculateFaceLocation = (data) => {
-    const clarifaiFace = data.outputs[0].data.regions[0].region_info.bounding_box;
+  claculateFaceLocation =  (data) => {
+
     const image = document.getElementById('inputimage');
     const width = Number(image.width);
     const height = Number(image.height);
-    return {
-      leftCol: clarifaiFace.left_col * width,
-      topRow: clarifaiFace.top_row * height,
-      rightCol: width - (clarifaiFace.right_col * width),
-      bottomRow: height - (clarifaiFace.bottom_row * height)
-    }
+
+    let dataPoints = [];
+
+    data.outputs[0].data.regions.forEach( eachFaceData=> {
+
+      const clarifaiFace = eachFaceData.region_info.bounding_box;
+      let eachFaceAttribute = {
+            leftCol: clarifaiFace.left_col * width,
+            topRow: clarifaiFace.top_row * height,
+            rightCol: width - (clarifaiFace.right_col * width),
+            bottomRow: height - (clarifaiFace.bottom_row * height)
+        }
+        dataPoints.push(eachFaceAttribute);
+    });
+    
+    return dataPoints;
   }
 
   showFaceBorder = (box) => {
     console.log(box);
     this.setState({ box: box });
   }
-  onInputChange = (event) => {
-    this.setState({ input: event.target.value });
+  onInputChange = async (event) => {
+    
+    await this.setState({input: event.target.value});
+    console.log('OnInoutChange:  ',this.state);
   }
-  onSubmitButton = () => {
+  onSubmitButton = async () => {
 
-    this.setState({ imageUrl: this.state.input });
-    app.models.predict(
+    await this.setState({ imageUrl: this.state.input });
+    
+    await app.models.predict(
       Clarifai.FACE_DETECT_MODEL,
       this.state.input)
       .then(response => this.showFaceBorder(this.claculateFaceLocation(response)))
-      .catch(err => console.log(err));
+      .catch(async err =>{
+        console.log(err);
+        await this.setState({errorMessage:'Image URL is incorrect'});
+      });
   }
   
   render() {
@@ -62,7 +80,8 @@ class App extends Component {
         <Logo />
         <TypeAnimation />
         <In onInputChange={this.onInputChange} onSubmitButton={this.onSubmitButton} />
-        <Face box={this.state.box} imageUrl={this.state.imageUrl} />
+        <Faces box={this.state.box} imageUrl={this.state.imageUrl} />
+        <ErrorMessage message={this.state.errorMessage}/>
         <ReactLoading className='loading' type={'bubbles'} color='pink' height={40} width={150} delay={10} />
        <div id='sa'>
 

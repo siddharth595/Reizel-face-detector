@@ -1,16 +1,9 @@
-import React from 'react';
-import './face.css';
+import React from "react";
 
-const Face = ({ imageUrl, box }) => {
-  return (
-    <div className='center ma'>
-      <div className='absolute mt5'>
-        <img  id='inputimage' alt='' src={imageUrl} width='450px' heigh='auto'/>
-        <div className='bounding-box' style={{top: box.topRow, right: box.rightCol, bottom: box.bottomRow, left: box.leftCol}}>
-        </div>
-      </div>
-    </div>
-  );
-}
+const Face = ({eachFace,count}) =>
 
-export default Face;
+     <div className='bounding-box'  key = {count} style={{top: eachFace.topRow, right: eachFace.rightCol, bottom: eachFace.bottomRow, left: eachFace.leftCol}}></div>
+
+
+
+     export default Face;
