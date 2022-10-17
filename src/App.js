@@ -17,16 +17,26 @@ const app = new Clarifai.App({
 
 
 class App extends Component {
+
+  
   constructor() {
     super();
     this.state = {
       input: '',
       imageUrl: '',
       box: [],
-      errorMessage:''
+      errorMessage:null
     }
   }
-
+  componentDidMount(){
+    document.addEventListener("keydown",this.handleKeyDown);
+  }
+  handleKeyDown=e=> {
+    console.log(e);
+    if (e.keyCode ===13) {
+       this.onSubmitButton()
+    } 
+   }
   claculateFaceLocation =  (data) => {
 
     const image = document.getElementById('inputimage');
@@ -35,6 +45,7 @@ class App extends Component {
 
     let dataPoints = [];
 
+    
     data.outputs[0].data.regions.forEach( eachFaceData=> {
 
       const clarifaiFace = eachFaceData.region_info.bounding_box;
@@ -46,7 +57,7 @@ class App extends Component {
         }
         dataPoints.push(eachFaceAttribute);
     });
-    
+
     return dataPoints;
   }
 
@@ -55,9 +66,11 @@ class App extends Component {
     this.setState({ box: box });
   }
   onInputChange = async (event) => {
-    
+    if(this.state.errorMessage!==null){
+      this.setState({errorMessage:null});
+  }
     await this.setState({input: event.target.value});
-    console.log('OnInoutChange:  ',this.state);
+    
   }
   onSubmitButton = async () => {
 
@@ -80,8 +93,10 @@ class App extends Component {
         <Logo />
         <TypeAnimation />
         <In onInputChange={this.onInputChange} onSubmitButton={this.onSubmitButton} />
-        <Faces box={this.state.box} imageUrl={this.state.imageUrl} />
+        <Faces box={this.state.box} imageUrl={this.state.input} />
+        
         <ErrorMessage message={this.state.errorMessage}/>
+        
         <ReactLoading className='loading' type={'bubbles'} color='pink' height={40} width={150} delay={10} />
        <div id='sa'>
 
